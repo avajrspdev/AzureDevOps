@@ -1,0 +1,42 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "storageAccountName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "env": {
+      "type": "string"
+    },
+    "accountType": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "uniqueNameExample": "[concat('storage', uniqueString(resourceGroup().id))]"
+  },
+  "resources": [
+    {
+      "name": "[toLower(parameters('storageAccountName'))]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "location": "[parameters('location')]",
+      "properties": {
+        "accessTier": "Hot",
+        "supportsHttpsTrafficOnly": true
+      },
+      "dependsOn": [],
+      "sku": {
+        "name": "[parameters('accountType')]"
+      },
+      "kind": "StorageV2",
+      "tags": {
+        "env": "[toLower(parameters('env'))]"
+      }
+    }
+  ],
+  "outputs": {}
+}
