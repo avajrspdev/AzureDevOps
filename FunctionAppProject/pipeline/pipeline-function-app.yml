@@ -5,6 +5,8 @@ trigger:
 
 variables:
   vmImageName: "ubuntu-latest"
+  subscriptionName: "MyAzureSubscription"
+  enableProvisioning: true
 
 stages:
 # Stage: Build
@@ -64,3 +66,10 @@ stages:
       inputs:
         path: "$(Build.ArtifactStagingDirectory)"
         artifact: "drop"
+
+# Stage: Deploy Function
+- template: "template-stage-deploy-function.yml"
+  parameters:
+    env: "Dev"
+    environment: "Development"
+    enableProvisioning: "${{variables.enableProvisioning}}"

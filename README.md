@@ -22,3 +22,12 @@
 ###### HelloDevOps/pipeline-hello-devops.yml
 
 This is a very simple pipeline using just script tasks to play around with the template and YAML basics.
+
+###### FunctionAppProject/pipeline/pipeline-function-app.yml
+
+1. Stage: Build
+2. Stage: Deploy to Development, Stage or Production depends on the parameters
+   1. Job: Provisioning Azure Resources using the ARM templates and PowerShell
+   2. Deploy Azure Function App
+
+![](../DevOpsPipelineResult.JPG)

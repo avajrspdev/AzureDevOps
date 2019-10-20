@@ -1,0 +1,89 @@
+parameters:
+  env: ""
+  environment: ""
+  enableProvisioning: ""
+
+stages:
+# Stage: Deploy Function
+- stage:
+  displayName: "${{parameters.environment}} - Deploy"
+
+  variables:
+    env: "${{parameters.env}}" # The replacetokens task is working with variables not parameters.
+    dropPath: "$(Pipeline.Workspace)/drop"
+    resourceGroup: "test-ResGroup"
+
+  jobs:
+  - deployment: ProvisionAzureResources
+    displayName: "Provision Azure Resources"
+    
+    condition: "${{parameters.enableProvisioning}}"
+    
+    environment: "${{parameters.environment}}"
+
+    pool:
+      vmImage: "$(vmImageName)"
+      
+    variables:
+      armDir: "$(dropPath)/provisioning"
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          # Install the Replace Tokens from the marketplace
+          - task: qetza.replacetokens.replacetokens-task.replacetokens@3
+            displayName: "Replace variables in ARM templates"
+            inputs:
+              rootDirectory: "$(armDir)"
+              targetFiles: "*-parameters.json"
+              verbosity: "detailed"
+              # encoding: "utf-8"
+
+          - task: AzurePowerShell@4
+            displayName: "Provisioning: AppInsights"
+            inputs:
+              azureSubscription: "$(subscriptionName)"
+              scriptPath: "$(armDir)/ResourceGroupDeployment.ps1"
+              scriptArguments: "-deploymentName 'AppInsights${{variables.env}}' -resourceGroup '${{variables.resourceGroup}}' -templateFile '$(armDir)/AppInsights-template.json' -templateParameterFile '$(armDir)/AppInsights-parameters.json'"
+              azurePowerShellVersion: "latestVersion"
+
+          - task: AzurePowerShell@4
+            displayName: "Provisioning: Storage Account"
+            inputs:
+              azureSubscription: "$(subscriptionName)"
+              scriptPath: "$(armDir)/ResourceGroupDeployment.ps1"
+              scriptArguments: "-deploymentName 'DevOpsTestStorage${{variables.env}}' -resourceGroup '${{variables.resourceGroup}}' -templateFile '$(armDir)/StorageAccount-template.json' -templateParameterFile '$(armDir)/StorageAccount-parameters.json'"
+              azurePowerShellVersion: "latestVersion"
+
+          - task: AzurePowerShell@4
+            displayName: "Provisioning: Function"
+            inputs:
+              azureSubscription: "$(subscriptionName)"
+              scriptPath: "$(armDir)/ResourceGroupDeployment.ps1"
+              scriptArguments: "-deploymentName 'DevOpsTestFunc${{variables.env}}' -resourceGroup '${{variables.resourceGroup}}' -templateFile '$(armDir)/FunctionAppOsWindows-template.json' -templateParameterFile '$(armDir)/FunctionApp-parameters.json'"
+              azurePowerShellVersion: "latestVersion"
+
+  - deployment: DeployAzureFunction
+    displayName: "Deploy Azure Function"
+    
+    dependsOn: "ProvisionAzureResources"
+    condition: or(succeeded(), not(${{parameters.enableProvisioning}}))
+
+    environment: "${{parameters.environment}}"
+
+    pool:
+      vmImage: "$(vmImageName)"
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureFunctionApp@1
+            displayName: "Deploy Azure Function App"
+            inputs:
+              azureSubscription: "$(subscriptionName)"
+              appType: "functionApp" # To deploy Function on Linux: "functionAppLinux"
+              appName: "DevOpsTestFunc${{variables.env}}"
+              deploymentMethod: "zipDeploy"
+              package: "$(dropPath)/FunctionAppProject/FunctionAppProject.zip"
