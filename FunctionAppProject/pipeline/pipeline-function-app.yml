@@ -1,0 +1,66 @@
+name: "$(BuildDefinitionName)_$(Year:yyyy).$(Month).$(DayOfMonth)_$(Rev:rr)"
+
+trigger:
+ - master
+
+variables:
+  vmImageName: "ubuntu-latest"
+
+stages:
+# Stage: Build
+- stage: BuildAzureFunction
+  displayName: "Build Azure Function"
+
+  jobs:
+  - job:
+    displayName: "Build Azure Function"
+
+    pool:
+      vmImage: "$(vmImageName)"
+
+    variables:
+      solutionDir: "FunctionAppProject"
+      solution: "FunctionAppProject.sln"
+
+    steps:
+    - task: DotNetCoreCLI@2
+      displayName: "dotnet restore"
+      enabled: false
+      inputs:
+        command: "restore"
+        projects: "**/*.csproj"
+
+    - task: DotNetCoreCLI@2
+      displayName: "dotnet build solution"
+      enabled: false
+      inputs:
+        command: "build"
+        workingDirectory: "$(solutionDir)"
+        arguments: "--configuration Release"
+
+    # Publish
+    # from: $(System.DefaultWorkingDirectory)/$(solutionDir)
+    # to:   $(Build.ArtifactStagingDirectory)/$(solutionDir)
+    # Predefined variables: https://docs.microsoft.com/en-ie/azure/devops/pipelines/build/variables
+    - task: DotNetCoreCLI@2
+      displayName: "dotnet publish"
+      inputs:
+        command: "publish"
+        publishWebProjects: false
+        zipAfterPublish: true
+        workingDirectory: "$(solutionDir)"
+        arguments: "--output $(Build.ArtifactStagingDirectory)/$(solutionDir)"
+
+    - task: CopyFiles@2
+      displayName: "Copy ARM template files to pipeline folder"
+      inputs:
+        sourceFolder: "$(solutionDir)/pipeline/arm-templates"
+        targetFolder: "$(Build.ArtifactStagingDirectory)/provisioning"
+        
+    # Pipeline artifacts
+    # https://docs.microsoft.com/en-us/azure/devops/pipelines/artifacts/pipeline-artifacts
+    - task: PublishPipelineArtifact@1
+      displayName: "Publish Pipeline Artifacts"
+      inputs:
+        path: "$(Build.ArtifactStagingDirectory)"
+        artifact: "drop"
