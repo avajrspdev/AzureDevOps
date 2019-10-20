@@ -16,3 +16,9 @@
   - [Deploy resources with ARM templates and Azure PowerShell](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy)
 - Others
   - [Azure DevOps Pipelines Refactoring Technics](https://devkimchi.com/2019/09/04/azure-devops-pipelines-refactoring-technics/) *(DevKimchi)*
+
+#### Pipelines
+
+###### HelloDevOps/pipeline-hello-devops.yml
+
+This is a very simple pipeline using just script tasks to play around with the template and YAML basics.

@@ -1,0 +1,77 @@
+# Run number: https://docs.microsoft.com/en-us/azure/devops/pipelines/process/run-number?view=azure-devops&tabs=yaml
+name: "$(BuildDefinitionName)_$(Year:yyyy).$(Month).$(DayOfMonth)_$(Rev:rr)"
+
+variables:
+  greeting: "Hello from Pipeline!"
+  vmImageName: "ubuntu-latest"
+
+trigger:
+- master
+
+# Stage: Build
+stages:
+- stage: BuildWithoutTemplate
+  displayName: "Build without template"
+
+  jobs:
+  - job:
+    displayName: "Just some scripts"
+
+    # pool: # If you do not define it, the pipeline will pick up Ubuntu16
+    #   vmImage: "$(vmImageName)"
+
+    variables:
+      greeting: "Hello from Job!" # Override the Pipeline's greeting variable.
+
+    steps:
+    - script: echo Hello, world!
+      displayName: "Run a one-line script"
+
+    - script: |
+        echo Add other tasks to build, test, and deploy your project.
+        echo "$(greeting)"
+      displayName: 'Run a multi-line script'
+
+    - task: PowerShell@2
+      displayName: "Echo Greeting in PowerShell"
+      inputs:
+        targetType: Inline
+        script: "Write-Host '$(greeting)'"
+
+    - pwsh: Write-Host "This script always runs in PowerShell Core. '$(greeting)'"
+
+# Stage: Release - Development (no template)
+- stage: DevReleaseWithoutTemplate
+  displayName: "Dev release without template"
+
+  jobs:
+  - deployment:
+    displayName: "Dev deployment"
+    
+    pool:
+      vmImage: "$(vmImageName)"
+      
+    environment: "Dev"
+    
+    variables:
+      greeting: "Hello from Dev Job!"
+      
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo "$(greeting)"
+            displayName: 'Run a one-line script'
+
+# Stage: Release - Stage (jobs template)
+- stage: StageReleaseWithTemplate
+  displayName: "Stage release with template"
+
+  variables:
+    greeting: "Hello from Staging Job!"
+
+  jobs:
+  - template: "template-jobs-release.yml"
+    parameters:
+      environment: "Stage"
+      message: "Message from the jobs template"

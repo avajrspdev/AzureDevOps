@@ -1,0 +1,19 @@
+parameters:
+  environment: ""
+  message: ""
+
+jobs:
+- deployment:
+  displayName: "${{parameters.environment}} deployment"
+  
+  pool:
+    vmImage: "$(vmImageName)"
+    
+  environment: "${{parameters.environment}}"
+    
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - script: echo "$(greeting) with message - ${{parameters.message}}"
+          displayName: 'Run a one-line script'
