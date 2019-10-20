@@ -25,9 +25,9 @@ This is a very simple pipeline using just script tasks to play around with the t
 
 ###### FunctionAppProject/pipeline/pipeline-function-app.yml
 
-1. Stage: Build
-2. Stage: Deploy to Development, Stage or Production depends on the parameters
+1. Stage: Build Azure Function App
+2. Stage: Deploy to Development, Stage or Production depends on the parameter
    1. Job: Provisioning Azure Resources using the ARM templates and PowerShell
-   2. Deploy Azure Function App
+   2. Job: Deploy Azure Function App
 
-![](../DevOpsPipelineResult.JPG)
+![](https://github.com/19balazs86/AzureDevOps/blob/master/FunctionAppProject/DevOpsPipelineResult.JPG)
