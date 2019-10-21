@@ -27,7 +27,7 @@ This is a very simple pipeline using just script tasks to play around with the t
 
 1. Stage: Build Azure Function App
 2. Stage: Deploy to Development, Stage or Production depends on the parameter
-   1. Job: Provisioning Azure Resources using the ARM templates and PowerShell
+   1. Job: Provisioning Azure Resources using ARM templates. Using a variable group to read values from KeyVault and set them to the Function App configuration during the provisioning process.
    2. Job: Deploy Azure Function App
 
 ![](https://github.com/19balazs86/AzureDevOps/blob/master/FunctionAppProject/DevOpsPipelineResult.JPG)

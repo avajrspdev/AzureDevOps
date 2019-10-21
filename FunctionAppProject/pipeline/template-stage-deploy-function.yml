@@ -12,6 +12,7 @@ stages:
     env: "${{parameters.env}}" # The replacetokens task is working with variables not parameters.
     dropPath: "$(Pipeline.Workspace)/drop"
     resourceGroup: "test-ResGroup"
+    functionAppName: "DevOpsTestFunc${{variables.env}}"
 
   jobs:
   - deployment: ProvisionAzureResources
@@ -24,8 +25,15 @@ stages:
     pool:
       vmImage: "$(vmImageName)"
       
-    variables:
-      armDir: "$(dropPath)/provisioning"
+    variables: # Has to be used in this format due to the group.
+    - name: "armDir"
+      value: "$(dropPath)/provisioning"
+    - group: "FuncApp-VG"
+    # The following values from variable group + KeyVault and replace token use it.
+    - name: "MyCustomValue"
+      value: $(FuncApp-MyCustomValue)
+    - name: "MyConnectionString"
+      value: $(FuncApp-MyConnectionString)
 
     strategy:
       runOnce:
@@ -40,29 +48,40 @@ stages:
               verbosity: "detailed"
               # encoding: "utf-8"
 
-          - task: AzurePowerShell@4
+          - task: AzureResourceGroupDeployment@2
             displayName: "Provisioning: AppInsights"
             inputs:
               azureSubscription: "$(subscriptionName)"
-              scriptPath: "$(armDir)/ResourceGroupDeployment.ps1"
-              scriptArguments: "-deploymentName 'AppInsights${{variables.env}}' -resourceGroup '${{variables.resourceGroup}}' -templateFile '$(armDir)/AppInsights-template.json' -templateParameterFile '$(armDir)/AppInsights-parameters.json'"
-              azurePowerShellVersion: "latestVersion"
+              resourceGroupName: "${{variables.resourceGroup}}"
+              deploymentName: "AppInsights${{variables.env}}"
+              csmFile: "$(armDir)/AppInsights-template.json"
+              csmParametersFile: "$(armDir)/AppInsights-parameters.json"
 
-          - task: AzurePowerShell@4
-            displayName: "Provisioning: Storage Account"
+          #- task: AzurePowerShell@4
+          #  displayName: "Provisioning: AppInsights"
+          #  inputs:
+          #    azureSubscription: "$(subscriptionName)"
+          #    scriptPath: "$(armDir)/ResourceGroupDeployment.ps1"
+          #    scriptArguments: "-deploymentName 'AppInsights${{variables.env}}' -resourceGroup '${{variables.resourceGroup}}' -templateFile '$(armDir)/AppInsights-template.json' -templateParameterFile '$(armDir)/AppInsights-parameters.json'"
+          #    azurePowerShellVersion: "latestVersion"
+
+          - task: AzureResourceGroupDeployment@2
+            displayName: "Provisioning: StorageAccount"
             inputs:
               azureSubscription: "$(subscriptionName)"
-              scriptPath: "$(armDir)/ResourceGroupDeployment.ps1"
-              scriptArguments: "-deploymentName 'DevOpsTestStorage${{variables.env}}' -resourceGroup '${{variables.resourceGroup}}' -templateFile '$(armDir)/StorageAccount-template.json' -templateParameterFile '$(armDir)/StorageAccount-parameters.json'"
-              azurePowerShellVersion: "latestVersion"
+              resourceGroupName: "${{variables.resourceGroup}}"
+              deploymentName: "DevOpsTestStorage${{variables.env}}"
+              csmFile: "$(armDir)/StorageAccount-template.json"
+              csmParametersFile: "$(armDir)/StorageAccount-parameters.json"
 
-          - task: AzurePowerShell@4
-            displayName: "Provisioning: Function"
+          - task: AzureResourceGroupDeployment@2
+            displayName: "Provisioning: FunctionApp"
             inputs:
               azureSubscription: "$(subscriptionName)"
-              scriptPath: "$(armDir)/ResourceGroupDeployment.ps1"
-              scriptArguments: "-deploymentName 'DevOpsTestFunc${{variables.env}}' -resourceGroup '${{variables.resourceGroup}}' -templateFile '$(armDir)/FunctionAppOsWindows-template.json' -templateParameterFile '$(armDir)/FunctionApp-parameters.json'"
-              azurePowerShellVersion: "latestVersion"
+              resourceGroupName: "${{variables.resourceGroup}}"
+              deploymentName: "$(functionAppName)"
+              csmFile: "$(armDir)/FunctionAppOsWindows-template.json"
+              csmParametersFile: "$(armDir)/FunctionApp-parameters.json"
 
   - deployment: DeployAzureFunction
     displayName: "Deploy Azure Function"
@@ -84,6 +103,6 @@ stages:
             inputs:
               azureSubscription: "$(subscriptionName)"
               appType: "functionApp" # To deploy Function on Linux: "functionAppLinux"
-              appName: "DevOpsTestFunc${{variables.env}}"
+              appName: "$(functionAppName)"
               deploymentMethod: "zipDeploy"
               package: "$(dropPath)/FunctionAppProject/FunctionAppProject.zip"
