@@ -22,6 +22,9 @@
     },
     "skuCode": {
       "type": "string"
+    },
+    "appSettings": {
+      "type": "object"
     }
   },
   "variables": {
@@ -71,6 +74,16 @@
             {
               "name": "WEBSITE_CONTENTSHARE",
               "value": "[concat(toLower(parameters('functionName')), 'a0e4')]"
+            },
+            {
+              "name": "MyCustomValue",
+              "value": "[parameters('appSettings').MyCustomValue]"
+            }
+          ],
+          "connectionStrings": [
+            {
+              "name": "MyConnectionString",
+              "connectionString": "[parameters('appSettings').MyConnectionString]"
             }
           ]
         },

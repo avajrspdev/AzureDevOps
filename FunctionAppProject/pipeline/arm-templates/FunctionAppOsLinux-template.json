@@ -22,6 +22,9 @@
     },
     "skuCode": {
       "type": "string"
+    },
+    "appSettings": {
+      "type": "object"
     }
   },
   "variables": {
@@ -63,6 +66,16 @@
             {
               "name": "AzureWebJobsStorage",
               "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId(variables('subscriptionId'), variables('resourceGroupName'), 'Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+            },
+            {
+              "name": "MyCustomValue",
+              "value": "[parameters('appSettings').MyCustomValue]"
+            }
+          ],
+          "connectionStrings": [
+            {
+              "name": "MyConnectionString",
+              "connectionString": "[parameters('appSettings').MyConnectionString]"
             }
           ]
         },
@@ -72,7 +85,7 @@
       }
     },
     {
-      "apiVersion": "2018-02-01",
+      "apiVersion": "2018-11-01",
       "name": "[variables('hostingPlanName')]",
       "type": "Microsoft.Web/serverfarms",
       "location": "[parameters('location')]",

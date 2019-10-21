@@ -22,6 +22,12 @@
     },
     "skuCode": {
       "value": "Y1"
+    },
+    "appSettings": {
+      "value": {
+        "MyCustomValue": "#{MyCustomValue}#",
+        "MyConnectionString": "#{MyConnectionString}#"
+      }
     }
   }
 }
