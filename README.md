@@ -16,6 +16,7 @@
   - [Deploy resources with ARM templates and Azure PowerShell](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy)
 - Others
   - [Azure DevOps Pipelines Refactoring Technics](https://devkimchi.com/2019/09/04/azure-devops-pipelines-refactoring-technics/) *(DevKimchi)*
+  - [6 ways passing Secrets to ARM templates](https://devkimchi.com/2019/04/24/6-ways-passing-secrets-to-arm-templates/) *(DevKimchi)*
 
 #### Pipelines
 
