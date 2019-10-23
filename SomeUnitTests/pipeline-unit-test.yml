@@ -1,0 +1,28 @@
+name: "$(BuildDefinitionName)_$(Year:yyyy).$(Month).$(DayOfMonth)_$(Rev:rr)"
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  solutionDir: "SomeUnitTests"
+
+steps:
+  - task: DotNetCoreCLI@2
+    displayName: "dotnet restore"
+    inputs:
+      command: "restore"
+      projects: "${{variables.solutionDir}}/**/*UnitTests.csproj"
+
+  - task: DotNetCoreCLI@2
+    displayName: "dotnet build solution"
+    inputs:
+      command: "build"
+      workingDirectory: "$(solutionDir)"
+      arguments: "--configuration Release"
+  
+  - task: DotNetCoreCLI@2
+    displayName: "Run Unit tests"
+    inputs:
+      command: "test"
+      projects: "${{variables.solutionDir}}/**/*UnitTests.csproj" #"**/*UnitTests.csproj"
+      arguments: "--configuration Release"

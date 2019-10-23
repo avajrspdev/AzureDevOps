@@ -31,4 +31,8 @@ This is a very simple pipeline using just script tasks to play around with the t
    1. Job: Provisioning Azure Resources using ARM templates. Using a variable group to read values from KeyVault and set them to the Function App configuration during the provisioning process.
    2. Job: Deploy Azure Function App
 
+###### SomeUnitTests/pipeline-unit-test.yml
+
+Just a simple restore, build and Unit test, which can be applied during the build process.
+
 ![](https://github.com/19balazs86/AzureDevOps/blob/master/FunctionAppProject/DevOpsPipelineResult.JPG)
