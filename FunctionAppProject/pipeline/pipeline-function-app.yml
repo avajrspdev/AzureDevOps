@@ -22,24 +22,8 @@ stages:
 
     variables:
       solutionDir: "FunctionAppProject"
-      solution: "FunctionAppProject.sln"
 
     steps:
-    - task: DotNetCoreCLI@2
-      displayName: "dotnet restore"
-      enabled: false
-      inputs:
-        command: "restore"
-        projects: "**/*.csproj"
-
-    - task: DotNetCoreCLI@2
-      displayName: "dotnet build solution"
-      enabled: false
-      inputs:
-        command: "build"
-        workingDirectory: "$(solutionDir)"
-        arguments: "--configuration Release"
-
     # Publish
     # from: $(System.DefaultWorkingDirectory)/$(solutionDir)
     # to:   $(Build.ArtifactStagingDirectory)/$(solutionDir)
