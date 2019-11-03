@@ -1,0 +1,45 @@
+name: "$(BuildDefinitionName)_$(Year:yyyy).$(Month).$(DayOfMonth)_$(Rev:rr)"
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  projectDir: "NugetPackageLibrary"
+  csprojFile: "NugetPackageLibrary.csproj"
+  feedName: "MyNugetFeed"
+  buildId: "$(Build.BuildId)" #Use this value in the replace task
+
+steps:
+  - task: qetza.replacetokens.replacetokens-task.replacetokens@3
+    displayName: "Replace BuildId in the csproj file"
+    inputs:
+      rootDirectory: "${{variables.projectDir}}"
+      targetFiles: "${{variables.csprojFile}}"
+      verbosity: "detailed"
+
+  - task: DotNetCoreCLI@2
+    displayName: "dotnet pack"
+    inputs: 
+      command: "pack"
+      packagesToPack: "${{variables.projectDir}}/${{variables.csprojFile}}"
+      #packDirectory: "$(Build.ArtifactStagingDirectory)"
+
+  - task: DotNetCoreCLI@2
+    displayName: "dotnet push"
+    inputs: 
+      command: "push"
+      publishVstsFeed: "${{variables.feedName}}"
+      #nuGetFeedType: "internal"
+      #packagesToPush: "$(Build.ArtifactStagingDirectory)/**/*.nupkg"
+
+  - task: PowerShell@2 #Set the version variable
+    displayName: "GetProjectVersion"
+    inputs:
+      filePath: "${{variables.projectDir}}/GetProjectVersion.ps1"
+      arguments: "-csprojFile ${{variables.projectDir}}/${{variables.csprojFile}}"
+
+  - task: PowerShell@2
+    displayName: "Print version"
+    inputs:
+      targetType: Inline
+      script: "Write-Host '$(version)'"
