@@ -7,21 +7,14 @@ variables:
   projectDir: "NugetPackageLibrary"
   csprojFile: "NugetPackageLibrary.csproj"
   feedName: "MyNugetFeed"
-  buildId: "$(Build.BuildId)" #Use this value in the replace task
 
 steps:
-  - task: qetza.replacetokens.replacetokens-task.replacetokens@3
-    displayName: "Replace BuildId in the csproj file"
-    inputs:
-      rootDirectory: "${{variables.projectDir}}"
-      targetFiles: "${{variables.csprojFile}}"
-      verbosity: "detailed"
-
   - task: DotNetCoreCLI@2
     displayName: "dotnet pack"
     inputs: 
       command: "pack"
       packagesToPack: "${{variables.projectDir}}/${{variables.csprojFile}}"
+      buildProperties: "VersionSuffix=.$(Build.BuildId)"
       #packDirectory: "$(Build.ArtifactStagingDirectory)"
 
   - task: DotNetCoreCLI@2
@@ -32,7 +25,8 @@ steps:
       #nuGetFeedType: "internal"
       #packagesToPush: "$(Build.ArtifactStagingDirectory)/**/*.nupkg"
 
-  - task: PowerShell@2 #Set the version variable
+  # Read the Version tag and set the version variable for the pipeline
+  - task: PowerShell@2
     displayName: "GetProjectVersion"
     inputs:
       filePath: "${{variables.projectDir}}/GetProjectVersion.ps1"
