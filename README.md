@@ -39,4 +39,5 @@ A simple restore, build and Unit test, which can be applied during the build pro
 
 ###### NugetPackageLibrary/pipeline-library.yml
 
-A simple pack and push package to internal Nuget feed. Extra steps: read version number from the csproj xml file and set a variable in script.
+- A simple pack and push package to internal Nuget feed. Extra steps: read version number from the csproj xml file and set a variable in script.
+- [Effective Nuget Package Versioning with GitVersion](http://loudandabrasive.com/effective-nuget-versioning-in-azure-devops) *(Loud & Abrasive)*
