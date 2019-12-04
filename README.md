@@ -41,3 +41,7 @@ A simple restore, build and Unit test, which can be applied during the build pro
 
 - A simple pack and push package to internal Nuget feed. Extra steps: read version number from the csproj xml file and set a variable in script.
 - [Effective Nuget Package Versioning with GitVersion](http://loudandabrasive.com/effective-nuget-versioning-in-azure-devops) *(Loud & Abrasive)*
+
+###### PlayingWithMountebank/pipeline.yml
+
+- [PlayingWithMountebank](https://github.com/19balazs86/PlayingWithMountebank) repository contains a pipeline with the following steps. Install the mountebank NPM package globally, run it in the background. Run unit test to initiate HTTP call over the imposter, defined in the test.
